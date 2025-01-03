@@ -1,1 +1,4 @@
 venv/
+.env
+chroma/
+__pycache__/
