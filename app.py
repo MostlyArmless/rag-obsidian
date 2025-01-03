@@ -1,4 +1,6 @@
 import os
+import json
+from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,6 +13,30 @@ TEMP_FOLDER = os.getenv("TEMP_FOLDER", './_temp')
 os.makedirs(TEMP_FOLDER, exist_ok=True)
 
 app = Flask(__name__)
+
+def log_query(request_text, response_text):
+    log_entry = {
+        "timestamp": datetime.now().isoformat(),
+        "request": request_text,
+        "response": response_text
+    }
+    
+    try:
+        # Read existing logs
+        try:
+            with open('queries.json', 'r') as f:
+                logs = json.load(f)
+        except FileNotFoundError:
+            logs = []
+        
+        # Append new entry
+        logs.append(log_entry)
+        
+        # Write back to file
+        with open('queries.json', 'w') as f:
+            json.dump(logs, f, indent=2)
+    except Exception as e:
+        print(f"Error logging query: {e}")
 
 @app.route('/embed', methods=['POST'])
 def route_embed():
@@ -32,9 +58,11 @@ def route_embed():
 @app.route('/query', methods=['POST'])
 def route_query():
   data = request.get_json()
-  response = query(data.get('query'))
+  request_text = data.get('query')
+  response = query(request_text)
 
   if response:
+    log_query(request_text, response)
     return jsonify(response), 200
   
   return jsonify({"error": "Failed to query"}), 500
