@@ -2,3 +2,4 @@ venv/
 .env
 chroma/
 __pycache__/
+queries.json
