@@ -14,8 +14,18 @@ if [ ! -f "$file_path" ] || [ ! -r "$file_path" ]; then
     exit 1
 fi
 
-curl --request POST \
+response=$(curl -s -f \
+  --request POST \
   --url http://localhost:8080/embed \
   --header 'Content-Type: multipart/form-data' \
-  --form "file=@$file_path"
+  --header 'Accept: application/json' \
+  --form "file=@$file_path")
+
+if echo "$response" | jq '.' >/dev/null 2>&1; then
+    echo "$response" | jq '.'
+else
+    echo "Error: Invalid JSON response received:"
+    echo "$response"
+    exit 1
+fi
   
