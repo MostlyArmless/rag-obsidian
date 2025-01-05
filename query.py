@@ -7,7 +7,7 @@ from langchain.retrievers.multi_query import MultiQueryRetriever
 from get_vector_db import get_vector_db
 from typing import Tuple
 
-LLM_MODEL = os.getenv('LLM_MODEL', 'mistral')
+LLM_MODEL = os.getenv('LLM_MODEL', 'llama3.1:latest')
 
 # Function to get the prompt templates for generating alternative questions and answering based on context
 def get_prompt_templates() -> Tuple[PromptTemplate, ChatPromptTemplate]:
@@ -60,3 +60,15 @@ def query(input):
         return response
 
     return None
+
+if __name__ == '__main__':
+    import sys
+    import time
+    input = sys.argv[1] if len(sys.argv) > 1 else None
+    start_time = time.time()
+    response = query(input)
+    end_time = time.time()
+
+    execution_time = end_time - start_time
+    print(f"Execution time: {execution_time:.4f} seconds")
+    print(response)
