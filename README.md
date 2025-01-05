@@ -28,7 +28,11 @@ pip install -r requirements.txt
 
 ## Usage
 
+### Flask Server for individual embedding and querying
+
 ```bash
+venv
+
 # Run the Flask server
 python app.py
 
@@ -37,4 +41,16 @@ python app.py
 
 # Query the server
 ./query.sh "What is the capital of France?"
+```
+
+### Script for auto-embedding the entire Obsidian vault
+
+```bash
+venv
+
+# Embed all files in the Obsidian vault
+python embed-vault.py
+
+# Query against that chroma DB
+python query.py "What is the capital of France?"
 ```
