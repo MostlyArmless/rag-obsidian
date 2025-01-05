@@ -1,16 +1,17 @@
 import os
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 from langchain.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from get_vector_db import get_vector_db
+from typing import Tuple
 
 LLM_MODEL = os.getenv('LLM_MODEL', 'mistral')
 
 # Function to get the prompt templates for generating alternative questions and answering based on context
-def get_prompt():
-    QUERY_PROMPT = PromptTemplate(
+def get_prompt_templates() -> Tuple[PromptTemplate, ChatPromptTemplate]:
+    question_expansion_prompt = PromptTemplate(
         input_variables=["question"],
         template="""You are an AI language model assistant. Your task is to generate five
         different versions of the given user question to retrieve relevant documents from
@@ -20,14 +21,14 @@ def get_prompt():
         Original question: {question}""",
     )
 
-    template = """Answer the question based ONLY on the following context:
-    {context}
-    Question: {question}
-    """
+    answer_generation_prompt = ChatPromptTemplate.from_template(
+        """Answer the question based ONLY on the following context:
+        {context}
+        Question: {question}
+        """
+    )
 
-    prompt = ChatPromptTemplate.from_template(template)
-
-    return QUERY_PROMPT, prompt
+    return question_expansion_prompt, answer_generation_prompt
 
 # Main function to handle the query process
 def query(input):
@@ -37,7 +38,7 @@ def query(input):
         # Get the vector database instance
         db = get_vector_db()
         # Get the prompt templates
-        QUERY_PROMPT, prompt = get_prompt()
+        QUERY_PROMPT, prompt = get_prompt_templates()
 
         # Set up the retriever to generate multiple queries using the language model and the query prompt
         retriever = MultiQueryRetriever.from_llm(

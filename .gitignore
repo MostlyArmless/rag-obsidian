@@ -3,3 +3,4 @@ venv/
 chroma/
 __pycache__/
 queries.json
+_temp/
